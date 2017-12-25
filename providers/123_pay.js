@@ -1,9 +1,7 @@
 'use trick'
 
 var requestPromise = require('request-promise');
-var dateFormat = require('dateformat');
 var Log = require('timestamp-log');
-var queryString = require('qs');
 var log = new Log(process.env.LOG_LEVEL);
 var sha1 = require('sha1');
 var md5 = require('md5');

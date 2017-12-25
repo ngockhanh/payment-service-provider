@@ -114,8 +114,8 @@ var insertPaymentLog = function (bankCode, totalAmount, callback) {
                     var insertSql = 'INSERT INTO flash_balance_topup_payment_logs SET ?';
 
                     var insert = {
-                        in_trace: inTrace.toString().replace('-', ''),
-                        ex_trace: exTrace.toString().replace('-', ''),
+                        in_trace: inTrace.toString().replace(new RegExp('-', 'g'), ''),
+                        ex_trace: exTrace.toString().replace(new RegExp('-', 'g'), ''),
                         ex_bank_code: bankCode,
                         amount: totalAmount,
                         partner_code: bank.partner_code,
@@ -134,7 +134,8 @@ var insertPaymentLog = function (bankCode, totalAmount, callback) {
 
                             log.error(queryErr);
                         } else {
-                            callback(null, {ex_trace: exTrace, in_trace: inTrace, in_status_id: 2, amount: totalAmount, bank_code: bankCode});
+                            callback(null, {ex_trace: insert.ex_trace, in_trace: insert.in_trace, in_status_id: 2,
+                                amount: totalAmount, bank_code: bankCode});
                         }
                     });
 

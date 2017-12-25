@@ -61,7 +61,7 @@ CollectorHandler.prototype.sendPaymentResultToServiceProvider = function (object
                 delete response['return_code'];
                 delete response['transaction_id'];
 
-                database.updatePaymentLog(transactionId, inStatusId, response.toString(), {});
+                database.updatePaymentLog(transactionId, inStatusId, JSON.stringify(response), {});
 
                 callback(null, {
                     in_status_id: inStatusId,

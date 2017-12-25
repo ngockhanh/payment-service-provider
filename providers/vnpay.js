@@ -102,7 +102,7 @@ module.exports = {
         } else {
             callback({
                 'code': 'error-payment-checksum',
-                'message': 'Fail checksum.'
+                'message': 'VNPAY: Fail checksum.'
             });
         }
     }
