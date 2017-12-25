@@ -1,0 +1,67 @@
+version: '2.1'
+services:
+  vnpay-payment-service-provider:
+    #logging:
+    #  driver: awslogs
+    #  options:
+    #    awslogs-region: ap-southeast-1
+    #    awslogs-group: echo-service-provider
+    #    awslogs-create-group: 'true'
+    #    awslogs-multiline-pattern: '(INFO|DEBUG|ERROR|WARNNING)'
+    build:
+      context: ./
+    environment:
+      - MESSAGE_SERVICE_ENABLED=YES
+      - LOG_LEVEL=debug
+      - KAFKA_QUEUE_ENABLED=NO
+      - PAYMENT_SERVICE_PROVIDER=VNPAY
+      - PAYMENT_SERVICE_URI=http://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+      - PAYMENT_SERVICE_RETURN_URL=http://192.168.99.100:8060/payment/checksum
+      - PAYMENT_SERVICE_TMN_CODE=ONONPAY1
+      - PAYMENT_SERVICE_SECURE_HASH_KEY=XBAPBEDCYMQBMCHQMTPPIPMOLGXXMAEL
+      - DATABASE_POOLING_LIMIT=10
+      - DATABASE_HOST=192.168.99.100
+      - DATABASE_PORT=32768
+      - DATABASE_USERNAME=root
+      - DATABASE_PASSWORD=
+      - DATABASE_DATABASE_NAME=flash
+    ports:
+     - 8060:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
+      interval: 5s
+      retries: 10
+    restart: always
+  123pay-payment-service-provider:
+    #logging:
+    #  driver: awslogs
+    #  options:
+    #    awslogs-region: ap-southeast-1
+    #    awslogs-group: echo-service-provider
+    #    awslogs-create-group: 'true'
+    #    awslogs-multiline-pattern: '(INFO|DEBUG|ERROR|WARNNING)'
+    build:
+      context: ./
+    environment:
+      - MESSAGE_SERVICE_ENABLED=YES
+      - LOG_LEVEL=debug
+      - KAFKA_QUEUE_ENABLED=NO
+      - PAYMENT_SERVICE_PROVIDER=123_PAY
+      - PAYMENT_SERVICE_URI=https://sandbox.123pay.vn/miservice/createOrder1
+      - PAYMENT_SERVICE_RETURN_URL=http://192.168.99.100:8060/payment/checksum
+      - PAYMENT_SERVICE_MERCHANT_CODE=MICODE
+      - PAYMENT_SERVICE_PASSCODE=MIPASSCODE
+      - PAYMENT_SERVICE_SECURE_HASH_KEY=MIKEY
+      - DATABASE_POOLING_LIMIT=10
+      - DATABASE_HOST=192.168.99.100
+      - DATABASE_PORT=32768
+      - DATABASE_USERNAME=root
+      - DATABASE_PASSWORD=
+      - DATABASE_DATABASE_NAME=flash
+    ports:
+     - 8070:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
+      interval: 5s
+      retries: 10
+    restart: always

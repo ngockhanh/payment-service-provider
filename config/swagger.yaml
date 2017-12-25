@@ -1,0 +1,93 @@
+swagger: '2.0'
+info:
+  version: 0.0.1
+  title: payment-service-provider
+host: 'localhost:8000'
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /payment:
+    x-swagger-router-controller: Payment Service Provier
+    post:
+      description: Create new payment request
+      operationId: createPaymentRequest
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/PaymentRequest'
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/PaymentResponse'
+        default:
+          description: Error Occured
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /payment/returnResult:
+    x-swagger-router-controller: Checksum payment result
+    get:
+      description: Receive payment result
+      operationId: receivePaymentResult
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/PaymentResponse'
+        default:
+          description: Error Occured
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+parameters:
+  PaymentRequest:
+    name: body
+    in: body
+    description: The parameters for a payment
+    schema:
+      $ref: '#/definitions/PaymentRequest'
+definitions:
+  PaymentRequest:
+    required:
+      - bank_code
+      - total_amount
+    properties:
+      bank_code:
+        type: string
+        example: NCB
+        description: The Bank Code
+      total_amount:
+        type: integer
+        example: 100000
+        description: Total payment amount
+  PaymentResponse:
+    required:
+      - reference_id
+    properties:
+      reference_id:
+        type: string
+        example: 123432we12reewer322
+        description: The reference id which is linked to a payment
+  ErrorResponse:
+    required:
+      - code
+    properties:
+      code:
+        type: string
+      message:
+        type: string

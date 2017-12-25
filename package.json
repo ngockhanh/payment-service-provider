@@ -1,0 +1,55 @@
+{
+  "name": "payment-sevice-provider-v2",
+  "description": "",
+  "version": "1.0.0",
+  "author": "Tran Ngoc Khanh <ngockhanh@ononpay.com>",
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/khanhtran-oop/payment-sevice-provider-v2.git"
+  },
+  "bugs": "http://github.com/khanhtran-oop/payment-sevice-provider-v2/issues",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.15.0",
+    "dateformat": "^3.0.2",
+    "express": "^4.0.0",
+    "kafka-node": "^2.3.0",
+    "md5": "^2.2.1",
+    "mysql": "^2.15.0",
+    "qs": "^6.5.1",
+    "request-promise": "^4.2.2",
+    "sha1": "^1.1.1",
+    "swagger-ui-express": "^2.0.13",
+    "swaggerize-express": "^4.0.0",
+    "swagmock": "~0.0.2",
+    "timestamp-log": "^1.0.0",
+    "uuid": "^3.1.0",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^2",
+    "istanbul": "~0.4.3",
+    "is-my-json-valid": "^2.13.1",
+    "js-yaml": "^3.2.6",
+    "supertest": "^1.2.0",
+    "swagger-parser": "^3.4.1",
+    "tape": "^4"
+  },
+  "scripts": {
+    "test": "tape 'tests/**/*.js'",
+    "cover": "istanbul cover tape -- 'tests/**/*.js'",
+    "lint": "eslint .",
+    "regenerate": "yo swaggerize:test --framework express --apiPath './config/swagger.yaml'",
+    "regenerate-data": "yo swaggerize:data --framework express --dataPath models --handlerPath controllers --apiPath config/swagger.yaml",
+    "regenerate-handler": "yo swaggerize:handler --framework express --dataPath models --handlerPath controllers --apiPath config/swagger.yaml",
+    "regenerate-test": "yo swaggerize:test --framework express --dataPath models --handlerPath controllers --apiPath config/swagger.yaml"
+  },
+  "generator-swaggerize": {
+    "version": "3.1.0"
+  },
+  "main": "./server"
+}
