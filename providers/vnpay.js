@@ -68,7 +68,8 @@ module.exports = {
         callback(null, {
             status: 'SUCCESS',
             redirect_url: vnpUrl,
-            reference_id: referenceId
+            reference_id: referenceId,
+            message: ''
         });
     },
 
@@ -97,7 +98,7 @@ module.exports = {
             callback(null, {
                 status: statusCode,
                 reference_id: response['vnp_TxnRef'],
-                message: response.toString()
+                message: 'VNPAY: ' + JSON.stringify(response)
             });
         } else {
             callback({

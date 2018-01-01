@@ -22,7 +22,7 @@ CollectorHandler.prototype.sendPaymentRequestToServiceProvider = function (objec
     if (process.env.PAYMENT_SERVICE_ENABLED === 'YES' && object) {
         paymentProvider.createPayment(object.reference_id, object.bank_code, object.total_amount, callback);
     } else {
-        database.updatePayment(object.reference_id, object.request_id, 'FAIL', object.request_id, process.env.PAYMENT_SERVICE_PROVIDER + ' service is disabled', {});
+        database.updatePayment(object.reference_id, object.request_id, 'FAIL', object.request_id, process.env.PAYMENT_SERVICE_PROVIDER + ' service is disabled');
     }
 };
 

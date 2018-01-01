@@ -66,7 +66,7 @@ module.exports = {
                             reference_id: referenceId,
                             redirect_url: res[2],
                             status: res[0] == successCode ? 'SUCCESS' : 'FAIL',
-                            message: res.toString()
+                            message: '123_PAY:' + JSON.stringify(res)
                         });
                     } else {
                         callback({

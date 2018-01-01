@@ -11,17 +11,17 @@ module.exports = {
             var collectorHandler = new CollectorHandler();
             collectorHandler.sendPaymentRequestToServiceProvider({
                 request_id: requestId,
-                reference_id: result.payment_id,
+                reference_id: result.id,
                 bank_code: bankCode,
                 total_amount: totalAmount
             }, function (err, res) {
                 if (!err) {
-                    database.updatePayment(result.payment_id, requestId, 'PENDING', res.request_id, res.message, {});
+                    database.updatePayment(result.id, requestId, 'PENDING', res.message);
                     res['request_id'] = requestId;
 
                     callback(null, res);
                 } else {
-                    database.updatePayment(result.payment_id, requestId, 'FAIL', res.request_id, err.message, {});
+                    database.updatePayment(result.id, requestId, 'FAIL', err.message);
                     err['request_id'] = requestId;
 
                     callback(err);
@@ -40,7 +40,7 @@ module.exports = {
             database.getPaymentByRequestId(referenceId, null, function (e, data) {
                 if (!e) {
                     if (!err) {
-                        database.updatePayment(data.payment_id, data.request_id, result.status, result.message, {});
+                        database.updatePayment(referenceId, data.request_id, result.status, result.message);
 
                         callback(null, {
                             redirect_url: data.redirect_url + '?' + queryStr.stringify({
@@ -50,7 +50,7 @@ module.exports = {
                             })
                         });
                     } else {
-                        database.updatePayment(data.payment_id, data.request_id, 'FAIL', err.message, {});
+                        database.updatePayment(referenceId, data.request_id, 'FAIL', err.message);
 
                         callback(null, {
                             redirect_url: data.redirect_url + '?' + queryStr.stringify({

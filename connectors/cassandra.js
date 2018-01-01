@@ -29,7 +29,7 @@ module.exports = {
         client.execute(query, params, { prepare: true }, (err, data) => {
             if (!err) {
                 callback(null, {
-                    payment_id: paymentId,
+                    id: paymentId,
                     request_id: requestId,
                     status: paymentStatus
                 });
@@ -58,7 +58,7 @@ module.exports = {
         client.execute(query, params, { prepare: true }, (err, data) => {
             if (!err) {
                 callback && callback(null, {
-                    payment_id: paymentId,
+                    id: paymentId,
                     request_id: data.request_id,
                     status: status
                 });
