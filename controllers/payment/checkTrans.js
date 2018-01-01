@@ -1,17 +1,17 @@
 'use strict';
-var dataProvider = require('../../models/payment/returnResult.js');
+var dataProvider = require('../../models/payment/checkTrans.js');
 /**
- * Operations on /payment/returnResult
+ * Operations on /payment/checkTrans
  */
 module.exports = {
     /**
      * summary: 
-     * description: The url which payment provider will redirect to after payment finished
-     * parameters: 
+     * description: Query payment transaction
+     * parameters: request_id
      * produces: application/json
-     * responses: 200
+     * responses: 200, default
      */
-    get: function receivingPaymentResult(req, res, next) {
+    get: function checkPaymentTransByRequestId(req, res, next) {
         /**
          * Get the data for response 200
          * For response `default` status 200 is used.
@@ -23,7 +23,7 @@ module.exports = {
                 next(err);
                 return;
             }
-            res.redirect(data.redirect_url);
+            res.status(status).send(data);
         });
     }
 };

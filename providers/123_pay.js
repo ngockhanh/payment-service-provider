@@ -54,8 +54,8 @@ var sendRequest = function (transactionId, bankCode, totalAmount) {
 };
 
 module.exports = {
-    sendPaymentRequest: function (transactionId, bankCode, totalAmount, callback) {
-        sendRequest(transactionId, bankCode, totalAmount)
+    createPayment: function (referenceId, bankCode, totalAmount, callback) {
+        sendRequest(referenceId, bankCode, totalAmount)
             .then(function (res) {
                 log.debug(res);
                 if (res.length > 0 && res[0] === '1') {
@@ -63,19 +63,24 @@ module.exports = {
 
                     if (sha1(checkSumKey) === res[3]) {
                         callback(null, {
-                            return_code: res[0] == successCode ? 'SUCCESS' : 'FAIL',
+                            reference_id: referenceId,
                             redirect_url: res[2],
-                            transaction_id: res[1]
+                            status: res[0] == successCode ? 'SUCCESS' : 'FAIL',
+                            message: res.toString()
                         });
                     } else {
                         callback({
-                            code: 'error-send-payment-request',
+                            reference_id: referenceId,
+                            redirect_url: '',
+                            status: 'FAIL',
                             message: '123_PAY: Checksum fail'
                         });
                     }
                 } else {
                     callback({
-                        code: 'error-send-payment-request',
+                        reference_id: referenceId,
+                        redirect_url: '',
+                        status: 'FAIL',
                         message: '123_PAY: ' + res[1].toString()
                     });
                 }
@@ -83,14 +88,16 @@ module.exports = {
             })
             .catch(function (err) {
                 callback({
-                    code: 'error-send-payment-request',
+                    reference_id: referenceId,
+                    redirect_url: '',
+                    status: 'FAIL',
                     message: '123_PAY: ' + err.toString()
                 });
             });
 
     },
 
-    checksum: function (response, callback) {
+    checkSum: function (response, callback) {
         var object = {
             status: response.status,
             time: response.time,
@@ -114,15 +121,17 @@ module.exports = {
                 statusCode = 'REJECT';
             }
 
-            response['return_code'] = statusCode;
-            response['transaction_id'] = response.transactionId;
-
-            callback(null, response);
+            callback(null, {
+                reference_id: response.transactionId,
+                status: statusCode,
+                message: response
+            });
 
         } else {
             callback({
-                'code': 'error-payment-checkSum',
-                'message': 'Fail checksum.'
+                reference_id: response.transactionId,
+                status: 'FAIL',
+                message: '123_PAY: Fail checksum.'
             });
         }
     }

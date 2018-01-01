@@ -14,7 +14,7 @@ module.exports = {
      */
     post: {
         200: function (req, res, callback) {
-            publisher.sendPaymenRequest(req.body.bank_code, req.body.total_amount, callback);
+            publisher.sendPaymentRequest(req.body.request_id, req.body.bank_code, req.body.total_amount, req.body.redirect_url, callback);
         },
         default: function (req, res, callback) {}
     }

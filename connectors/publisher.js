@@ -1,64 +1,91 @@
 'use strict';
 const Log = require('timestamp-log');
 const log = new Log(process.env.LOG_LEVEL);
-const database = require('./mysql');
+const database = require('./cassandra');
+const queryStr = require('qs');
 const CollectorHandler = require('../collector-handler');
 
 module.exports = {
-    sendPaymenRequest: function (bank_code, total_amount, callback) {
-        database.createPaymentLog(bank_code, total_amount, function (err, result) {
-            if (!err) {
-                var payLoad = [{
-                    topic: process.env.KAFKA_MESSAGES_TOPIC,
-                    messages: JSON.stringify({
-                        trace: result.in_trace,
-                        in_status_id: result.in_status_id,
-                        amount: result.amount
-                    })
-                }];
+    sendPaymentRequest: function (requestId, bankCode, totalAmount, redirectUrl, callback) {
+        database.createPayment(requestId, 'INIT', bankCode, totalAmount, redirectUrl, function (err, result) {
+            var collectorHandler = new CollectorHandler();
+            collectorHandler.sendPaymentRequestToServiceProvider({
+                request_id: requestId,
+                reference_id: result.payment_id,
+                bank_code: bankCode,
+                total_amount: totalAmount
+            }, function (err, res) {
+                if (!err) {
+                    database.updatePayment(result.payment_id, requestId, 'PENDING', res.request_id, res.message, {});
+                    res['request_id'] = requestId;
 
-                log.debug('PaymentServiceCollector:', 'STARTED!', result.in_trace);
-                var collectorHandler = new CollectorHandler();
-                collectorHandler.sendPaymentRequestToServiceProvider({
-                    ex_trace: result.ex_trace,
-                    in_trace: result.in_trace,
-                    bank_code: result.bank_code,
-                    total_amount: result.amount
-                }, function (err, requestResult) {
+                    callback(null, res);
+                } else {
+                    database.updatePayment(result.payment_id, requestId, 'FAIL', res.request_id, err.message, {});
+                    err['request_id'] = requestId;
+
+                    callback(err);
+                }
+            });
+        });
+
+    },
+
+    receivePaymentResult: function (returnResult, callback) {
+        var collectorHandler = new CollectorHandler();
+
+        collectorHandler.sendPaymentResultToServiceProvider(returnResult, function (err, result) {
+            var referenceId = err ? err.reference_id : result.reference_id;
+
+            database.getPaymentByRequestId(referenceId, null, function (e, data) {
+                if (!e) {
                     if (!err) {
-                        callback(null, requestResult);
+                        database.updatePayment(data.payment_id, data.request_id, result.status, result.message, {});
 
-                        log.debug(requestResult);
+                        callback(null, {
+                            redirect_url: data.redirect_url + '?' + queryStr.stringify({
+                                status: result.status,
+                                request_id: data.request_id,
+                                reference_id: referenceId
+                            })
+                        });
                     } else {
-                        callback({
-                            code: 'error-send-payment-request',
-                            message: err.message.toString()
+                        database.updatePayment(data.payment_id, data.request_id, 'FAIL', err.message, {});
+
+                        callback(null, {
+                            redirect_url: data.redirect_url + '?' + queryStr.stringify({
+                                status: 'FAIL',
+                                request_id: data.request_id,
+                                message: err.message,
+                                reference_id: referenceId
+                            })
                         });
                     }
-                });
-            } else {
-                callback({
-                    code: 'error-create-payment-log',
-                    message: err.message.toString()
-                });
-            }
+
+                } else {
+                    log.error('receivePaymentResult', 'FAIL', 'Not found payment');
+                }
+            });
         });
     },
 
-    receivePaymentResult: function (params, callback) {
-        log.debug('PaymentServiceCollector:', 'STARTED!');
-        var collectorHandler = new CollectorHandler();
-
-        collectorHandler.sendPaymentResultToServiceProvider(params, function (err, data) {
-            if (err) {
-                callback({
-                    code: 'error-checksum-request',
-                    message: err.message.toString()
+    checkPaymentTrans: function (referenceId, requestId, callback) {
+        database.getPaymentByRequestId(referenceId, requestId, function (e, data) {
+            if (!e) {
+                callback(null, {
+                    reference_id: referenceId,
+                    request_id: requestId,
+                    status: data.status
                 });
             } else {
-                callback(null, data);
+                callback({
+                    reference_id: referenceId,
+                    request_id: requestId,
+                    status: 'FALI',
+                    message: 'Payment not found'
+                });
 
-                log.debug(data);
+                log.error('checkPaymentTrans', e);
             }
         });
     }

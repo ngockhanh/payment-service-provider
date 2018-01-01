@@ -62,18 +62,17 @@ var getVNPUrl = function (referenceId, bankCode, totalAmount) {
  * Operations on /kafka/collection-handler
  */
 module.exports = {
-
-    sendPaymentRequest: function (referenceId, bankCode, totalAmount, callback) {
+    createPayment: function (referenceId, bankCode, totalAmount, callback) {
         var vnpUrl = getVNPUrl(referenceId, bankCode, totalAmount);
 
         callback(null, {
-            return_code: 'SUCCESS',
+            status: 'SUCCESS',
             redirect_url: vnpUrl,
-            transaction_id: referenceId
+            reference_id: referenceId
         });
     },
 
-    checksum: function (response, callback) {
+    checkSum: function (response, callback) {
         var secureHash = response['vnp_SecureHash'];
 
         delete response['vnp_SecureHash'];
@@ -95,14 +94,15 @@ module.exports = {
                 }
             }
 
-            response['transaction_id'] = response['vnp_TxnRef'];
-            response['return_code'] = statusCode;
-
-            callback(null, response);
+            callback(null, {
+                status: statusCode,
+                reference_id: response['vnp_TxnRef'],
+                message: response.toString()
+            });
         } else {
             callback({
-                'code': 'error-payment-checksum',
-                'message': 'VNPAY: Fail checksum.'
+                status: 'FAIL',
+                message: 'VNPAY: Fail checksum.'
             });
         }
     }
