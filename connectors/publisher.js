@@ -8,6 +8,8 @@ const CollectorHandler = require('../collector-handler');
 module.exports = {
     sendPaymentRequest: function (requestId, bankCode, totalAmount, redirectUrl, callback) {
         database.createPayment(requestId, 'INIT', bankCode, totalAmount, redirectUrl, function (err, result) {
+            log.debug('sendPaymentRequest', 'START!', result.id);
+
             var collectorHandler = new CollectorHandler();
             collectorHandler.sendPaymentRequestToServiceProvider({
                 request_id: requestId,
@@ -20,11 +22,15 @@ module.exports = {
                     res['request_id'] = requestId;
 
                     callback(null, res);
+
+                    log.debug('sendPaymentRequest', 'SUCCESS', res);
                 } else {
                     database.updatePayment(result.id, requestId, 'FAIL', err.message);
                     err['request_id'] = requestId;
 
                     callback(err);
+
+                    log.error('sendPaymentRequest', 'FAIL', err.message);
                 }
             });
         });
@@ -34,6 +40,7 @@ module.exports = {
     receivePaymentResult: function (returnResult, callback) {
         var collectorHandler = new CollectorHandler();
 
+        log.debug('receivePaymentResult', 'START');
         collectorHandler.sendPaymentResultToServiceProvider(returnResult, function (err, result) {
             var referenceId = err ? err.reference_id : result.reference_id;
 
@@ -49,6 +56,8 @@ module.exports = {
                                 reference_id: referenceId
                             })
                         });
+
+                        log.debug('receivePaymentResult', 'SUCCESS', result.message);
                     } else {
                         database.updatePayment(referenceId, data.request_id, 'FAIL', err.message);
 
@@ -60,6 +69,8 @@ module.exports = {
                                 reference_id: referenceId
                             })
                         });
+
+                        log.error('receivePaymentResult', 'FAIL', err.message);
                     }
 
                 } else {
@@ -70,6 +81,7 @@ module.exports = {
     },
 
     checkPaymentTrans: function (referenceId, requestId, callback) {
+        log.debug('checkPaymentTrans', 'START', referenceId);
         database.getPaymentByRequestId(referenceId, requestId, function (e, data) {
             if (!e) {
                 callback(null, {
@@ -77,15 +89,17 @@ module.exports = {
                     request_id: requestId,
                     status: data.status
                 });
+
+                log.debug('checkPaymentTrans', 'SUCCESS', data);
             } else {
                 callback({
                     reference_id: referenceId,
                     request_id: requestId,
-                    status: 'FALI',
+                    status: 'FAIL',
                     message: 'Payment not found'
                 });
 
-                log.error('checkPaymentTrans', e);
+                log.error('checkPaymentTrans', 'FAIL', e);
             }
         });
     }

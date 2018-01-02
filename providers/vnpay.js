@@ -55,6 +55,8 @@ var getVNPUrl = function (referenceId, bankCode, totalAmount) {
     queryObj['vnp_SecureHashType'] = 'MD5';
     queryObj['vnp_SecureHash'] = secureHash;
 
+    log.debug('VNPAY: ', queryObj);
+
     return process.env.PAYMENT_SERVICE_URI + '?' + queryString.stringify(queryObj, { encode: true });
 };
 
@@ -100,11 +102,15 @@ module.exports = {
                 reference_id: response['vnp_TxnRef'],
                 message: 'VNPAY: ' + JSON.stringify(response)
             });
+
+            log.debug('VNPAY: ', response);
         } else {
             callback({
                 status: 'FAIL',
                 message: 'VNPAY: Fail checksum.'
             });
+
+            log.error('VNPAY: ', 'Fail checksum');
         }
     }
 };
