@@ -75,7 +75,7 @@ module.exports = {
         });
     },
 
-    checkSum: function (response, callback) {
+    validateTransactionResult: function (response, callback) {
         var secureHash = response['vnp_SecureHash'];
 
         delete response['vnp_SecureHash'];
@@ -88,13 +88,13 @@ module.exports = {
         var checkSum = md5(signData);
 
         if(secureHash === checkSum){
-            var statusCode = 'FAIL';
+            var statusCode = 'FAILED';
             if (successCodes.indexOf(response['vnp_ResponseCode']) >= 0) {
                 statusCode = 'SUCCESS';
+            } else if (pendingCodes.indexOf(response['vnp_ResponseCode']) >= 0) {
+                statusCode = 'PENDING';
             } else {
-                if (pendingCodes.indexOf(response['vnp_ResponseCode']) >= 0) {
-                    statusCode = 'PENDING';
-                }
+                statusCode = 'FAILED';
             }
 
             callback(null, {
@@ -106,11 +106,11 @@ module.exports = {
             log.debug('VNPAY: ', response);
         } else {
             callback({
-                status: 'FAIL',
-                message: 'VNPAY: Fail checksum.'
+                status: 'FAILED',
+                message: 'VNPAY: CreatePayment response has an incorrect checksum'
             });
 
-            log.error('VNPAY: ', 'Fail checksum');
+            log.error('VNPAY: ', 'CreatePayment response has an incorrect checksum');
         }
     }
 };

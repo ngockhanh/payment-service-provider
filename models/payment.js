@@ -10,7 +10,7 @@ module.exports = {
      * parameters: body
      * produces: application/json
      * responses: 200, default
-     * operationId: createPaymentRequest
+     * operationId: createPaymentRequestOrder
      */
     post: {
         200: function (req, res, callback) {

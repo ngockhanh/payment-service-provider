@@ -25,12 +25,12 @@ module.exports = {
 
                     log.debug('sendPaymentRequest', 'SUCCESS', res);
                 } else {
-                    database.updatePayment(result.id, requestId, 'FAIL', err.message);
+                    database.updatePayment(result.id, requestId, 'FAILED', err.message);
                     err['request_id'] = requestId;
 
                     callback(err);
 
-                    log.error('sendPaymentRequest', 'FAIL', err.message);
+                    log.error('sendPaymentRequest', 'FAILED', err.message);
                 }
             });
         });
@@ -59,22 +59,22 @@ module.exports = {
 
                         log.debug('receivePaymentResult', 'SUCCESS', result.message);
                     } else {
-                        database.updatePayment(referenceId, data.request_id, 'FAIL', err.message);
+                        database.updatePayment(referenceId, data.request_id, 'FAILED', err.message);
 
                         callback(null, {
                             redirect_url: data.redirect_url + '?' + queryStr.stringify({
-                                status: 'FAIL',
+                                status: 'FAILED',
                                 request_id: data.request_id,
                                 message: err.message,
                                 reference_id: referenceId
                             })
                         });
 
-                        log.error('receivePaymentResult', 'FAIL', err.message);
+                        log.error('receivePaymentResult', 'FAILED', err.message);
                     }
 
                 } else {
-                    log.error('receivePaymentResult', 'FAIL', 'Not found payment');
+                    log.error('receivePaymentResult', 'FAILED', 'Not found payment');
                 }
             });
         });
@@ -95,11 +95,11 @@ module.exports = {
                 callback({
                     reference_id: referenceId,
                     request_id: requestId,
-                    status: 'FAIL',
+                    status: 'FAILED',
                     message: 'Payment not found'
                 });
 
-                log.error('checkPaymentTrans', 'FAIL', e);
+                log.error('checkPaymentTrans', 'FAILED', e);
             }
         });
     }

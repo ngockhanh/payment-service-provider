@@ -40,7 +40,7 @@ services:
       - PAYMENT_SERVICE_ENABLED=YES
       - LOG_LEVEL=debug
       - KAFKA_QUEUE_ENABLED=NO
-      - PAYMENT_SERVICE_PROVIDER=123_PAY
+      - PAYMENT_SERVICE_PROVIDER=123PAY
       - PAYMENT_SERVICE_URI=https://sandbox.123pay.vn/miservice/createOrder1
       - PAYMENT_SERVICE_RETURN_URL=http://192.168.99.100:8070/payment/returnResult
       - PAYMENT_SERVICE_MERCHANT_CODE=MICODE

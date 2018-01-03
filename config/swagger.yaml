@@ -13,10 +13,10 @@ produces:
   - application/json
 paths:
   /payment:
-    x-swagger-router-controller: Payment Service Provier
+    x-swagger-router-controller: Payment Service Provider
     post:
-      description: Create new payment request
-      operationId: createPaymentRequest
+      description: Create new payment request order
+      operationId: createPaymentRequestOrder
       consumes:
         - application/json
       produces:
@@ -34,10 +34,10 @@ paths:
           description: Error Occured
           schema:
             $ref: '#/definitions/ErrorResponse'
-  /payment/returnResult:
-    x-swagger-router-controller: Receiving payment result
+  /payment/provider/callback:
+    x-swagger-router-controller: Receiving payment result from provider by webhook callback
     get:
-      description: The url which payment provider will redirect to after payment finished
+      description: The url which payment provider will redirect to this service after the payment has been finished
       operationId: receivingPaymentResult
       consumes:
         - application/json
@@ -45,11 +45,11 @@ paths:
         - application/json
       responses:
         '200':
-          description: Redirect to redirect_url from payment creating api
-  /payment/checkTrans:
-    x-swagger-router-controller: Check payment transaction by request id
+          description: Redirect to the registered `redirect_url` of consumed application for further processing.
+  /payment/status:
+    x-swagger-router-controller: Check payment transaction status by request id and reference_id
     get:
-      description: Query payment transaction
+      description: Query payment transaction status
       operationId: checkPaymentTransByRequestId
       consumes:
         - application/json
@@ -92,15 +92,15 @@ definitions:
     properties:
       request_id:
         type: string
-        example: asfass112343
+        example: 9ef14a69-99cf-485b-b2d9-51fdfd27b898
       bank_code:
         type: string
         example: NCB
-        description: The Bank Code
+        description: The predefined bank code in short name
       total_amount:
         type: integer
         example: 100000
-        description: Total payment amount
+        description: Total amount to pay for an order
       redirect_url:
         type: string
         example: 'http://example.ononpay.com/redirect_url'
@@ -124,10 +124,10 @@ definitions:
         example: 'http://123pay.com'
       status:
         type: string
-        example: SUCCESS|PENDING|FAIL
+        example: SUCCESS|PENDING|FAILED
       message:
         type: string
-        example: Message if status is FAIL
+        example: Message if status is FAILED
   CheckTransReponse:
     required:
       - reference_id
@@ -143,17 +143,17 @@ definitions:
         example: asfass112343
       status:
         type: string
-        example: SUCCESS|PENDING|FAIL
+        example: SUCCESS|PENDING|FAILED
       message:
         type: string
-        example: Message if status is FAIL
+        example: Message if status is FAILED
   ErrorResponse:
     required:
       - status
     properties:
       status:
         type: string
-        example: FAIL
+        example: FAILED
       message:
         type: string
         example: Unknow error

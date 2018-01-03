@@ -11,7 +11,7 @@ module.exports = {
      * produces: application/json
      * responses: 200, default
      */
-    post: function createPaymentRequest(req, res, next) {
+    post: function createPaymentRequestOrder(req, res, next) {
         /**
          * Get the data for response 200
          * For response `default` status 200 is used.
